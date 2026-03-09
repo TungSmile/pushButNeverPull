@@ -86,8 +86,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 540,
-      "y": 960,
+      "x": 206.99999999999997,
+      "y": 368,
       "z": 0
     },
     "_lrot": {
@@ -232,8 +232,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 960,
-      "y": 960,
+      "x": 368,
+      "y": 368,
       "z": 1
     },
     "_layer": 33554432,
@@ -317,6 +317,7 @@
     "rotateCanvasLandscape": false,
     "changeEditorDevice": false,
     "oneTimeExecution": false,
+    "lastOrientation": true,
     "currentNodeInEditorFlag": false,
     "currentNodeInEditor": null,
     "_id": "4c4QHD75ZKg53KvaXoK/Bq"
@@ -596,8 +597,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.38333333333333336,
+      "y": 0.38333333333333336,
       "z": 1
     },
     "_layer": 33554432,
@@ -7179,8 +7180,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -115.213,
-      "y": -102.422,
+      "x": 69.66,
+      "y": -423.552,
       "z": 0
     },
     "_lrot": {
@@ -8105,6 +8106,7 @@
     "rotateCanvasLandscape": false,
     "changeEditorDevice": false,
     "oneTimeExecution": false,
+    "lastOrientation": true,
     "currentNodeInEditorFlag": false,
     "currentNodeInEditor": null,
     "_id": "47eJSb9K1E9qzPUGxJBUUN"
@@ -8576,8 +8578,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -842.4,
-      "y": 954.6,
+      "x": -322.92,
+      "y": 365.93,
       "z": 0
     },
     "_lrot": {
@@ -8589,8 +8591,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 0.02109375,
-      "y": 0.02109375,
+      "x": 0.0080859375,
+      "y": 0.0080859375,
       "z": 1
     },
     "_layer": 33554432,
@@ -8817,6 +8819,7 @@
     "rotateCanvasLandscape": false,
     "changeEditorDevice": false,
     "oneTimeExecution": false,
+    "lastOrientation": true,
     "currentNodeInEditorFlag": false,
     "currentNodeInEditor": null,
     "_id": "7c5xrlMVdPpJMItYQDqY1y"
@@ -8934,8 +8937,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1080,
-      "height": 1920
+      "width": 414,
+      "height": 736
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

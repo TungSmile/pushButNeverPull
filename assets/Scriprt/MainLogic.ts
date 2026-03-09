@@ -36,6 +36,8 @@ export class MainLogic extends Component {
     // temp
     pos: Vec3 = new Vec3();
 
+    
+
     start() {
         let t = this;
         t.cVas = find('Canvas');
@@ -70,13 +72,17 @@ export class MainLogic extends Component {
     // game play
     addEventGame() {
         let t = this;
+
+
+
+
+
         t.gamePlay.children.forEach(e => {
             e.on(Node.EventType.TOUCH_START, t.touchPiece, t);
             e.on(Node.EventType.TOUCH_MOVE, t.movePiece, t);
             e.on(Node.EventType.TOUCH_END, t.endMovePiece, t);
             e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
             e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.END_CONTACT, t.endContact, t);
-
             // e.getChildByName("block").setPosition(0, 0, 0);
         })
     }
@@ -91,13 +97,19 @@ export class MainLogic extends Component {
     // }
 
 
+    checkPiece() {
+        let t = this;
+
+    }
+
+
+
 
 
     touchPiece(event: EventTouch) {
         let t = this;
         if (t.piece != null) return;
         tween(event.target)
-
             .to(0.1, { scale: new Vec3(1.05, 1.05, 1.05) })
             .call(() => {
                 t.piece = event.target;
@@ -117,8 +129,24 @@ export class MainLogic extends Component {
         const mousePosition = new Vec3(event.getUILocation().x, event.getUILocation().y, 0);
         let localPosition = new Vec3();
         t.gamePlay.getComponent(UITransform).convertToNodeSpaceAR(mousePosition, localPosition);
+        let size = t.piece.getComponent(UITransform).contentSize;
+        if (localPosition.x >= (415 - size.x / 2)) {
+            localPosition.x = (415 - size.x / 2);
+        }
+        if (localPosition.x <= (-415 + size.x / 2)) {
+            localPosition.x = (-415 + size.x / 2);
+        }
+        if (localPosition.y >= (490 - size.y / 2)) {
+            localPosition.y = (490 - size.y / 2);
+        }
+        if (localPosition.y <= (-490 + size.y / 2)) {
+            localPosition.y = (-490 + size.y / 2);
+        }
+
+
+
         if (t.obstacle) {
-           
+
         }
         t.piece.position = localPosition;
         t.piece.getChildByName("block").setPosition(0, 0, 0);
@@ -133,6 +161,7 @@ export class MainLogic extends Component {
         // t.piece.getComponent(Collider2D).off(Contact2DType.END_CONTACT, t.endContact, t);
         t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Static;
         t.piece.setScale(1, 1, 1);
+        log('end move', t.piece.position);
         t.piece = null;
 
 
