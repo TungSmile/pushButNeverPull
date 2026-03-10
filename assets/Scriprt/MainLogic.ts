@@ -1,4 +1,4 @@
-import { _decorator, AudioClip, Collider2D, ERigidBody2DType, Component, Contact2DType, EventTouch, find, IPhysics2DContact, Node, RigidBody2D, SpriteFrame, tween, UITransform, v3, Vec3, view, log, Vec2 } from 'cc';
+import { _decorator, AudioClip, Collider2D, ERigidBody2DType, Component, Contact2DType, EventTouch, find, IPhysics2DContact, Node, RigidBody2D, SpriteFrame, tween, UITransform, v3, Vec3, view, log, Vec2, Size, geometry, Camera, PhysicsSystem } from 'cc';
 import super_html_playable from './plugin/super_html_playable';
 const { ccclass, property } = _decorator;
 
@@ -7,6 +7,8 @@ export class MainLogic extends Component {
 
     @property(Node)
     hand: Node = null;
+    @property(Node)
+    CamMain: Node = null;
     ads: Node;
     cVas: Node;
     isMove: boolean = false;
@@ -36,7 +38,7 @@ export class MainLogic extends Component {
     // temp
     pos: Vec3 = new Vec3();
 
-    
+
 
     start() {
         let t = this;
@@ -69,18 +71,16 @@ export class MainLogic extends Component {
 
 
 
+
     // game play
     addEventGame() {
         let t = this;
-
-
-
-
-
+        t.gamePlay.on(Node.EventType.TOUCH_START, t.pickPiece, t);
         t.gamePlay.children.forEach(e => {
-            e.on(Node.EventType.TOUCH_START, t.touchPiece, t);
+            // e.on(Node.EventType.TOUCH_START, t.touchPiece, t);
             e.on(Node.EventType.TOUCH_MOVE, t.movePiece, t);
             e.on(Node.EventType.TOUCH_END, t.endMovePiece, t);
+            e.on(Node.EventType.TOUCH_CANCEL, t.endMovePiece, t);
             e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
             e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.END_CONTACT, t.endContact, t);
             // e.getChildByName("block").setPosition(0, 0, 0);
@@ -97,14 +97,38 @@ export class MainLogic extends Component {
     // }
 
 
-    checkPiece() {
+    dropPieceToBroad(posPiece: Vec3, sizePiece: Size) {
         let t = this;
+
 
     }
 
 
 
-
+    pickPiece(event: EventTouch) {
+        let t = this;
+        let ray = new geometry.Ray();
+        const camera = t.CamMain.getComponent(Camera);
+        camera.screenPointToRay(event.getLocationX(), event.getLocationY(), ray);
+        const mask = 0xffffffff;
+        const maxDistance = 10000000;
+        const queryTrigger = true;
+        const bResult = PhysicsSystem.instance.raycastClosest(ray, mask, maxDistance, queryTrigger);
+        if (bResult) {
+            const results = PhysicsSystem.instance.raycastResults;
+            const raycastClosestResult = PhysicsSystem.instance.raycastClosestResult;
+            const collider = raycastClosestResult.collider;
+            if (collider.node) {
+                tween(collider.node)
+                    .to(0.1, { scale: new Vec3(1.05, 1.05, 1.05) })
+                    .call(() => {
+                        t.piece = event.target;
+                        t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
+                    })
+                    .start();
+            }
+        }
+    }
 
     touchPiece(event: EventTouch) {
         let t = this;
@@ -161,7 +185,7 @@ export class MainLogic extends Component {
         // t.piece.getComponent(Collider2D).off(Contact2DType.END_CONTACT, t.endContact, t);
         t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Static;
         t.piece.setScale(1, 1, 1);
-        log('end move', t.piece.position);
+        t.dropPieceToBroad(t.piece.position, t.piece.getComponent(UITransform).contentSize);
         t.piece = null;
 
 
