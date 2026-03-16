@@ -1,4 +1,4 @@
-import { _decorator, AudioClip, Collider2D, ERigidBody2DType, Component, Contact2DType, EventTouch, find, IPhysics2DContact, Node, RigidBody2D, SpriteFrame, tween, UITransform, v3, Vec3, view, log, Vec2, Size, geometry, Camera, PhysicsSystem } from 'cc';
+import { _decorator, AudioClip, Collider2D, ERigidBody2DType, Component, Contact2DType, EventTouch, find, IPhysics2DContact, Node, RigidBody2D, SpriteFrame, tween, UITransform, v3, Vec3, view, log, Vec2, Size, geometry, Camera, PhysicsSystem, PhysicsSystem2D, Vec4 } from 'cc';
 import super_html_playable from './plugin/super_html_playable';
 const { ccclass, property } = _decorator;
 
@@ -28,15 +28,16 @@ export class MainLogic extends Component {
     gamePlay: Node = null;
 
     // data game
-    // mapGame: any = null;
+    mapGame: any = null;
     // @property()
-    // mapH: number = 7;
+    mapH: number = 7;
     // @property()
-    // mapW: number = 6;
-
+    mapW: number = 6;
+    posPiece = [new Vec3(-275, 257, 0), new Vec3(69, 275, 0), new Vec3(69, -425, 0), new Vec3(-275, -350, 0), new Vec3(0, -69, 0)];
 
     // temp
     pos: Vec3 = new Vec3();
+
 
 
 
@@ -76,25 +77,29 @@ export class MainLogic extends Component {
     addEventGame() {
         let t = this;
         t.gamePlay.on(Node.EventType.TOUCH_START, t.pickPiece, t);
+        let id = 0;
         t.gamePlay.children.forEach(e => {
             // e.on(Node.EventType.TOUCH_START, t.touchPiece, t);
+            e.setPosition(t.posPiece[id]);
+            log("pos:" + t.posPiece[id]);
+            id++;
             e.on(Node.EventType.TOUCH_MOVE, t.movePiece, t);
             e.on(Node.EventType.TOUCH_END, t.endMovePiece, t);
             e.on(Node.EventType.TOUCH_CANCEL, t.endMovePiece, t);
-            e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
-            e.getChildByName("block").getComponent(Collider2D).on(Contact2DType.END_CONTACT, t.endContact, t);
-            // e.getChildByName("block").setPosition(0, 0, 0);
+            // e.getChildByName("block").setPosition(new Vec3());
+            log("add event " + e.name);
+            // e.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Static;
+
         })
     }
 
-    // setUpMap() {
-    //     let t = this;
-    //     if (true) {
-    //         t.mapGame = new Array(t.mapH * t.mapW).fill(-1);
-    //     } else
-    //         t.mapGame = DataManager.instance.stageMap;
+    setUpMap() {
+        let t = this;
+        if (true) {
+            t.mapGame = new Array(t.mapH * t.mapW).fill(-1);
+        }
 
-    // }
+    }
 
 
     dropPieceToBroad(posPiece: Vec3, sizePiece: Size) {
@@ -107,27 +112,33 @@ export class MainLogic extends Component {
 
     pickPiece(event: EventTouch) {
         let t = this;
-        let ray = new geometry.Ray();
-        const camera = t.CamMain.getComponent(Camera);
-        camera.screenPointToRay(event.getLocationX(), event.getLocationY(), ray);
-        const mask = 0xffffffff;
-        const maxDistance = 10000000;
-        const queryTrigger = true;
-        const bResult = PhysicsSystem.instance.raycastClosest(ray, mask, maxDistance, queryTrigger);
-        if (bResult) {
-            const results = PhysicsSystem.instance.raycastResults;
-            const raycastClosestResult = PhysicsSystem.instance.raycastClosestResult;
-            const collider = raycastClosestResult.collider;
-            if (collider.node) {
-                tween(collider.node)
-                    .to(0.1, { scale: new Vec3(1.05, 1.05, 1.05) })
-                    .call(() => {
-                        t.piece = event.target;
-                        t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
-                    })
-                    .start();
-            }
+        if (t.piece != null) {
+            t.piece.getComponent(RigidBody2D).type = ERigidBody2DType.Static;
+            t.piece.setScale(1, 1, 1);
+            t.piece = null;
+            return;
+        };
+        const collider = PhysicsSystem2D.instance.testPoint(event.getUILocation());
+        log("collider:" + collider.length);
+        if (collider.length > 0) {
+            let temp = collider[collider.length - 1].node;
+            log("w:" + temp.name)
+            tween(temp)
+                .to(0.1, { scale: new Vec3(1.05, 1.05, 1.05) })
+                .call(() => {
+                    t.piece = temp;
+                    t.piece.getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
+                    // t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
+                    // t.piece.getChildByName("block").getComponent(Collider2D).on(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
+                    // t.piece.getComponent(Collider2D).on(Contact2DType.POST_SOLVE, t.postContact, t);
+                    // t.piece.getComponent(Collider2D).on(Contact2DType.PRE_SOLVE, t.preContact, t);
+                    // t.piece.getComponent(Collider2D).on(Contact2DType.END_CONTACT, t.endContact, t);
+                })
+                .start();
         }
+
+
+
     }
 
     touchPiece(event: EventTouch) {
@@ -137,7 +148,7 @@ export class MainLogic extends Component {
             .to(0.1, { scale: new Vec3(1.05, 1.05, 1.05) })
             .call(() => {
                 t.piece = event.target;
-                t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
+                // t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Kinematic;
                 // t.piece.getChildByName("block").getComponent(Collider2D).on(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
                 // t.piece.getComponent(Collider2D).on(Contact2DType.POST_SOLVE, t.postContact, t);
                 // t.piece.getComponent(Collider2D).on(Contact2DType.PRE_SOLVE, t.preContact, t);
@@ -166,53 +177,30 @@ export class MainLogic extends Component {
         if (localPosition.y <= (-490 + size.y / 2)) {
             localPosition.y = (-490 + size.y / 2);
         }
-
-
-
-        if (t.obstacle) {
-
-        }
-        t.piece.position = localPosition;
-        t.piece.getChildByName("block").setPosition(0, 0, 0);
+        // if (t.obstacle) {
+        //     return
+        // }
+        t.piece.position = Vec3.add(new Vec3(), t.piece.position, localPosition.multiplyScalar(0.1));
+        // t.piece.getChildByName("block").setPosition(0, 0, 0);
     }
 
     endMovePiece(event: EventTouch) {
         let t = this;
+        log("end move");
         if (t.piece == null) return;
-        t.piece.getChildByName("block").getComponent(Collider2D).off(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
+        // t.piece.getChildByName("block").getComponent(Collider2D).off(Contact2DType.BEGIN_CONTACT, t.beginContact, t);
         // t.piece.getComponent(Collider2D).off(Contact2DType.POST_SOLVE, t.postContact, t);
         // t.piece.getComponent(Collider2D).off(Contact2DType.PRE_SOLVE, t.preContact, t);
         // t.piece.getComponent(Collider2D).off(Contact2DType.END_CONTACT, t.endContact, t);
-        t.piece.getChildByName("block").getComponent(RigidBody2D).type = ERigidBody2DType.Static;
+        t.piece.getComponent(RigidBody2D).type = ERigidBody2DType.Static;
         t.piece.setScale(1, 1, 1);
-        t.dropPieceToBroad(t.piece.position, t.piece.getComponent(UITransform).contentSize);
+        // t.dropPieceToBroad(t.piece.position, t.piece.getComponent(UITransform).contentSize);
         t.piece = null;
 
 
     }
 
 
-    obstacle: boolean = false;
-    leftRight: number = 0;
-    updown: number = 0;
-    beginContact(selfCollider: Collider2D, otherCollider: Collider2D, contact: IPhysics2DContact | null) {
-        let t = this;
-        // const worldManifold = contact.getWorldManifold();
-        // const points = worldManifold.points;
-        // const normal = worldManifold.normal;
-        // console.log('Bcontact', contact ? contact.getTangentSpeed() : "o");
-        // console.log('sefl', selfCollider);
-        // console.log('other', otherCollider);
-        if (otherCollider.node.name) {
-            const worldManifold = contact.getWorldManifold();
-            if (worldManifold) {
-                // t.director = worldManifold.normal;
-                // log('director', t.director);
-            }
-
-
-        }
-    }
 
 
 
@@ -235,12 +223,7 @@ export class MainLogic extends Component {
     //     console.log('other', otherCollider);
     // }
 
-    endContact(selfCollider: Collider2D, otherCollider: Collider2D, contact: IPhysics2DContact | null) {
-        let t = this;
-        // const worldManifold = contact.getWorldManifold();
-        // const points = worldManifold.points;
-        // const normal = worldManifold.normal;
-    }
+
 
 
 

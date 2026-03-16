@@ -630,6 +630,7 @@ export class Responsive2D extends Component {
                         node.position.z
                     );
                     break;
+                    
             }
         }
     }
